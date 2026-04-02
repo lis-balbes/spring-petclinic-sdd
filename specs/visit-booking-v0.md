@@ -42,7 +42,7 @@ Create `src/main/java/org/springframework/samples/petclinic/owner/VisitRepositor
 
 ### 5. Form template update
 **`src/main/resources/templates/pets/createOrUpdateVisitForm.html`**
-- Add a `<select>` dropdown for vet (bound to `visit.vet`, populated from `${vets}`), displaying vet name + specialties.
+- Add a `<select>` dropdown for vet (bound to `visit.vet`, populated from `${vets}`), displaying vet name.
 - Add a `<select>` or `<input type="time">` for time slot (bound to `visit.time`).
 - Show validation errors for the new fields.
 

@@ -60,8 +60,8 @@ Warning:
 AC/Plan mismatch: AC says "available vets" but plan loads all vets via findAll()
 
 Quick-fix: selection
-1. Update plan to exclude booked vets
-2. Reword AC to "all registered vets"
+1. Filter the dropdown — exclude booked vets
+2. Show all, validate on submit — catch conflicts at booking time
 3. [Text field]
 ---
 

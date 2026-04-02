@@ -61,7 +61,7 @@ Use `@Value` injection in `VisitController` to read these values.
 
 ### 7. Form template update
 **`src/main/resources/templates/pets/createOrUpdateVisitForm.html`**
-- Add a `<select>` dropdown for vet (bound to `visit.vet`, populated from `${vets}`), displaying vet name + specialties.
+- Add a `<select>` dropdown for vet (bound to `visit.vet`, populated from `${vets}`), displaying vet name.
 - Add a `<select>` dropdown for time slot (bound to `visit.time`, populated from `${timeSlots}`), displaying formatted hour values.
 - Show validation errors for the new fields.
 
@@ -93,10 +93,7 @@ Use `@Value` injection in `VisitController` to read these values.
 
 **PetTypeFormatter pattern** (`owner/PetTypeFormatter.java`): The project uses `Formatter<T>` components to convert between form string values and JPA entities. `VetFormatter` follows this same pattern, placed in the `vet` package next to `VetRepository`.
 
-## Trade-offs
-
-### Vet availability filtering is partial without AJAX
-AC #1 requires showing only available vets. On the initial GET, no date/time is selected yet, so all vets are shown. Filtering only takes effect on POST re-renders (e.g. after a validation error) where the submitted date+time are known. A user picking a date for the first time will see all vets, including potentially booked ones — the double-booking check catches this on submit. Full real-time filtering would require AJAX, which is out of scope.
+## Decisions
 
 ### Double-booking uses both app-level check and DB constraint
 The app-level `existsByVetIdAndDateAndTime` check provides a user-friendly validation error. The `UNIQUE` constraint is a safety net for concurrent requests. A race condition that passes the app check but hits the DB constraint will throw `DataIntegrityViolationException` — the controller should handle this gracefully rather than surfacing a 500.
@@ -106,7 +103,7 @@ The app-level `existsByVetIdAndDateAndTime` check provides a user-friendly valid
 ### Out of scope
 
 - **Vet specialties matching**: No filtering of vets by pet type or specialty. All vets shown regardless.
-- **Dynamic availability (AJAX)**: Vet dropdown is static on page load; no dynamic refresh when date changes. On POST re-renders the filtered list is shown, but initial GET shows all vets. Full AJAX-based dynamic filtering could be a follow-up.
+- **Dynamic availability (AJAX)**: Vet dropdown is static on page load; no dynamic refresh when date changes. Could be a follow-up.
 - **Multi-slot / duration-based booking**: Visits occupy exactly one time slot. No concept of appointment duration.
 - **Vet calendar view**: No dedicated UI for vets to see their schedule.
 - **VetRepository cache invalidation**: `findAll()` is `@Cacheable("vets")`. Adding a vet won't auto-refresh the dropdown — existing behavior, not introduced by this change.
