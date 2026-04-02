@@ -6,7 +6,7 @@ Add vet assignment and time slot selection to the visit creation flow. When book
 
 ## Acceptance Criteria
 
-1. Visit form shows a dropdown of available vets for the selected date/time.
+1. Visit form shows a dropdown of vets. On initial page load, all vets are shown. When the form is re-rendered after submission (e.g., validation error), only vets available for the selected date/time are shown. Double-booking check on submit is the safety net.
 2. Visit form includes a time slot picker with hourly slots from 09:00 to 16:00 (last bookable slot). Slot range is configurable via `application.properties`.
 3. A vet cannot be booked for the same date+time twice (server-side validation + database unique constraint).
 4. Vet and time are persisted with the visit.
@@ -46,7 +46,7 @@ Create `src/main/java/org/springframework/samples/petclinic/owner/VisitRepositor
 ### 5. VisitController updates
 **`src/main/java/org/springframework/samples/petclinic/owner/VisitController.java`**
 - Inject `VetRepository` and new `VisitRepository`.
-- Add `@ModelAttribute("vets")` method that populates available vets. On GET (no date/time selected yet), return all vets via `vetRepository.findAll()`. On POST (date and time submitted with the form), use `VisitRepository.findByDateAndTime` to identify already-booked vets and exclude them from the list.
+- Add `@ModelAttribute("vets")` method that populates available vets. Accepts `@RequestParam(required = false) LocalDate date` and `@RequestParam(required = false) LocalTime time`. On GET (no date/time selected yet — both params are null), return all vets via `vetRepository.findAll()`. On POST (date and time submitted with the form — both params are non-null), use `VisitRepository.findByDateAndTime` to identify already-booked vets and exclude them from the list.
 - Add `@ModelAttribute("timeSlots")` method that exposes the list of bookable time slots. Read slot boundaries from configuration (`petclinic.visit.start-hour` and `petclinic.visit.end-hour` in `application.properties`, defaulting to 9 and 16). Generate hourly `LocalTime` values from start to end inclusive.
 - In `processNewVisitForm`: before saving, call the double-booking check. If conflict, add a `BindingResult` error on the `vet` field and return the form.
 - Wrap the save call in a try/catch for `DataIntegrityViolationException`. If two concurrent requests pass the app-level check but one hits the DB unique constraint, catch the exception and re-render the form with the same user-friendly error on the `vet` field. This is the graceful handling required by the dual-layer defense described in the Decisions section.
@@ -76,6 +76,18 @@ Use `@Value` injection in `VisitController` to read these values.
     - Successful booking with vet+time.
     - Double-booking rejected.
 
+### 10. Vet.toString()
+**`src/main/java/org/springframework/samples/petclinic/vet/Vet.java`**
+- Add `toString()` override returning `firstName + " " + lastName`. Required because the `selectField` Thymeleaf fragment renders `${item}` as option text, which calls `toString()`.
+
+### 11. i18n keys
+**`src/main/resources/messages/messages.properties`** and all locale variants (`messages_de.properties`, `messages_en.properties`, `messages_es.properties`, `messages_fa.properties`, `messages_ko.properties`, `messages_pt.properties`, `messages_ru.properties`, `messages_tr.properties`).
+- Add `vet=Vet` and `time=Time` keys. Required for the form labels and the `I18nPropertiesSyncTest` which validates all locale files have the same keys.
+
+### 12. Test fixes
+- **`VisitControllerTests`**: Add `@ComponentScan.Filter` for `VetFormatter` to `@WebMvcTest` annotation (following `PetControllerTests` pattern for `PetTypeFormatter`). Add `@MockitoBean` for `VetRepository` and `VisitRepository`.
+- **`ClinicServiceTests.shouldAddNewVisitForPet`**: Set `vet` and `time` on the new `Visit` before saving, to satisfy `@NotNull` validation.
+
 ## Implementation Notes
 
 **Current Visit entity** (`Visit.java`): Only has `date` (LocalDate) and `description` (String). Extends `BaseEntity`. No relationship to Vet.
@@ -98,6 +110,9 @@ Use `@Value` injection in `VisitController` to read these values.
 
 ### Double-booking uses both app-level check and DB constraint
 The app-level `existsByVetIdAndDateAndTime` check provides a user-friendly validation error. The `UNIQUE` constraint is a safety net for concurrent requests. A race condition that passes the app check but hits the DB constraint will throw `DataIntegrityViolationException` — the controller should handle this gracefully rather than surfacing a 500.
+
+### Vet dropdown shows all vets on initial page load
+Vet dropdown shows all vets on initial page load. Pre-filtering kicks in on form re-renders where date and time are known. Double-booking check on submit is the safety net. Full real-time filtering would require AJAX (out of scope).
 
 ## Other
 

@@ -16,14 +16,19 @@
 package org.springframework.samples.petclinic.owner;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.samples.petclinic.model.BaseEntity;
+import org.springframework.samples.petclinic.vet.Vet;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Simple JavaBean domain object representing a visit.
@@ -38,6 +43,16 @@ public class Visit extends BaseEntity {
 	@Column(name = "visit_date")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate date;
+
+	@ManyToOne
+	@JoinColumn(name = "vet_id")
+	@NotNull
+	private Vet vet;
+
+	@Column(name = "visit_time")
+	@DateTimeFormat(pattern = "HH:mm")
+	@NotNull
+	private LocalTime time;
 
 	@NotBlank
 	private String description;
@@ -55,6 +70,22 @@ public class Visit extends BaseEntity {
 
 	public void setDate(LocalDate date) {
 		this.date = date;
+	}
+
+	public Vet getVet() {
+		return this.vet;
+	}
+
+	public void setVet(Vet vet) {
+		this.vet = vet;
+	}
+
+	public LocalTime getTime() {
+		return this.time;
+	}
+
+	public void setTime(LocalTime time) {
+		this.time = time;
 	}
 
 	public String getDescription() {

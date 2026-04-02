@@ -15,9 +15,19 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.samples.petclinic.vet.Vet;
+import org.springframework.samples.petclinic.vet.VetRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -26,6 +36,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -43,8 +54,22 @@ class VisitController {
 
 	private final OwnerRepository owners;
 
-	public VisitController(OwnerRepository owners) {
+	private final VetRepository vetRepository;
+
+	private final VisitRepository visitRepository;
+
+	private final int startHour;
+
+	private final int endHour;
+
+	public VisitController(OwnerRepository owners, VetRepository vetRepository, VisitRepository visitRepository,
+			@Value("${petclinic.visit.start-hour:9}") int startHour,
+			@Value("${petclinic.visit.end-hour:16}") int endHour) {
 		this.owners = owners;
+		this.vetRepository = vetRepository;
+		this.visitRepository = visitRepository;
+		this.startHour = startHour;
+		this.endHour = endHour;
 	}
 
 	@InitBinder
@@ -79,6 +104,29 @@ class VisitController {
 		return visit;
 	}
 
+	@ModelAttribute("vets")
+	public Collection<Vet> populateVets(@RequestParam(required = false) LocalDate date,
+			@RequestParam(required = false) LocalTime time) {
+		if (date != null && time != null) {
+			List<Visit> bookedVisits = visitRepository.findByDateAndTime(date, time);
+			Set<Integer> bookedVetIds = bookedVisits.stream().map(v -> v.getVet().getId()).collect(Collectors.toSet());
+			return vetRepository.findAll()
+				.stream()
+				.filter(vet -> !bookedVetIds.contains(vet.getId()))
+				.collect(Collectors.toList());
+		}
+		return vetRepository.findAll();
+	}
+
+	@ModelAttribute("timeSlots")
+	public List<LocalTime> populateTimeSlots() {
+		List<LocalTime> slots = new ArrayList<>();
+		for (int hour = startHour; hour <= endHour; hour++) {
+			slots.add(LocalTime.of(hour, 0));
+		}
+		return slots;
+	}
+
 	// Spring MVC calls method loadPetWithVisit(...) before initNewVisitForm is
 	// called
 	@GetMapping("/owners/{ownerId}/pets/{petId}/visits/new")
@@ -95,8 +143,20 @@ class VisitController {
 			return "pets/createOrUpdateVisitForm";
 		}
 
+		if (visit.getVet() != null && visit.getDate() != null && visit.getTime() != null && visitRepository
+			.existsByVetIdAndDateAndTime(visit.getVet().getId(), visit.getDate(), visit.getTime())) {
+			result.rejectValue("vet", "duplicate", "This vet is already booked for the selected date and time.");
+			return "pets/createOrUpdateVisitForm";
+		}
+
 		owner.addVisit(petId, visit);
-		this.owners.save(owner);
+		try {
+			this.owners.save(owner);
+		}
+		catch (org.springframework.dao.DataIntegrityViolationException ex) {
+			result.rejectValue("vet", "duplicate", "This vet is already booked for the selected date and time.");
+			return "pets/createOrUpdateVisitForm";
+		}
 		redirectAttributes.addFlashAttribute("message", "Your visit has been booked");
 		return "redirect:/owners/{ownerId}";
 	}

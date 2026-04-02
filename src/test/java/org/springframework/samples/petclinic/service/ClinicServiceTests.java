@@ -19,6 +19,7 @@ package org.springframework.samples.petclinic.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -223,6 +224,9 @@ class ClinicServiceTests {
 		int found = pet7.getVisits().size();
 		Visit visit = new Visit();
 		visit.setDescription("test");
+		Vet vet = EntityUtils.getById(this.vets.findAll(), Vet.class, 1);
+		visit.setVet(vet);
+		visit.setTime(LocalTime.of(9, 0));
 
 		owner6.addVisit(pet7.getId(), visit);
 		this.owners.save(owner6);
