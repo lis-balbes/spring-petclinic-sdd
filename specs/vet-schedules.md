@@ -6,11 +6,13 @@ Allow clinic staff to configure weekly working schedules for each veterinarian. 
 
 ## Acceptance Criteria
 
-1. Staff can view, add, edit, and delete weekly schedule entries for any vet through a dedicated management page.
-2. Each schedule entry defines a day of the week with start and end working hours. A vet has at most one schedule entry per day.
-3. The system rejects invalid entries: overlapping days for the same vet, and end time not after start time.
-4. A "Schedules" link in the main navigation provides access to vet schedule management.
-5. All three database dialects (H2, MySQL, PostgreSQL) support the new schema and seed data.
+1. Staff can view each vet's configured working days and hours.
+2. Staff can add, edit, and delete schedule entries for any vet.
+3. A schedule entry defines a day of the week with start and end working hours.
+4. A vet has at most one schedule entry per day of the week.
+5. Invalid entries — duplicate days or end time not after start time — are rejected with clear feedback.
+6. Schedule management is reachable from the main navigation.
+7. Seed data covers varied schedules including at least one vet with no schedule configured.
 
 ## Data Model
 One vet → many schedule entries (up to 7, one per day). The `day_of_week` integer uses ISO-8601 numbering (Monday=1 through Sunday=7) to align with Java's `DayOfWeek.getValue()`.
@@ -95,7 +97,6 @@ One vet → many schedule entries (up to 7, one per day). The `day_of_week` inte
     - `existsByVetIdAndDayOfWeek` returns correct boolean.
 
 ## Implementation Notes
-
 **No existing CRUD pattern to follow.** The project has create/edit forms for owners and pets, but no page with a table of entries plus inline add/edit/delete. The closest analog is the owner details page (table of pets/visits), but it doesn't support editing rows. The schedule management page will be the first true CRUD table in the app.
 
 **Feature-based packaging.** The `VetSchedule` entity, repository, controller, and validator all go in the `vet` package (`org.springframework.samples.petclinic.vet`), alongside `Vet.java` and `VetRepository.java`.
