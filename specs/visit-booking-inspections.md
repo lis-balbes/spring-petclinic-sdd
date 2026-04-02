@@ -12,8 +12,8 @@ The spec proposes a `<select>` for `Vet` but never mentions creating an equivale
 The spec also doesn't mention where this formatter would live. `PetTypeFormatter` is in the `owner` package alongside `PetTypeRepository`. A `VetFormatter` would need `VetRepository` (from the `vet` package), raising a question about package placement.
 
 **What IDE shows:**
-Warning:
-> Incomplete plan. This project uses Formatter<T> to bind form selects to entities (see PetTypeFormatter). Plan adds a <select> for Vet but no VetFormatter. Form POST will fail.
+
+Warning: Incomplete plan. This project uses `Formatter<T>` to bind form selects to entities (see `PetTypeFormatter`). Plan adds a `<select>` for Vet but no `VetFormatter`. Form POST will fail.
 
 Quick fix: Show "Add VetFormatter step", should work like full-line completion
 
@@ -29,6 +29,7 @@ The spec relies solely on an application-level check-then-act: query if a confli
 The schema change section (Section 1) only mentions adding columns and a FK, not a unique constraint. All three schema files (`h2/schema.sql`, `mysql/schema.sql`, `postgres/schema.sql`) would need it.
 
 **What IDE shows:**
+
 Warning:
 Possible race condition. App-level check-then-act without a DB constraint.
 
@@ -54,6 +55,7 @@ The spec implements pattern 2 but the AC reads like pattern 1. Either the AC sho
 The developer should consciously choose, and the AC should match the chosen approach.
 
 **What IDE shows:**
+
 Warning:
 AC/Plan mismatch: AC says "available vets" but plan loads all vets via findAll()
 
@@ -78,6 +80,7 @@ The "e.g." makes this acceptance criterion untestable. It leaves open multiple q
 The plan itself (Section 5, line 46) mirrors the ambiguity: "Add a `<select>` or `<input type="time">`" — the spec author wasn't sure either. These are two very different UX choices: a constrained list of slots vs. free-form time entry. The double-booking validation logic, the `visit_time` column type, and the seed data values all depend on which choice is made.
 
 **What IDE shows:**
+
 Warning:
 Ambiguous AC
 
