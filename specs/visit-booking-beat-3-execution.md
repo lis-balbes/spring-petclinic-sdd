@@ -77,14 +77,38 @@ Updated `VisitControllerTests.java`:
 
 ### AC Verification (Loop 1)
 
-| AC | Status | Reasoning |
-|----|--------|-----------|
-| 1 | **[PAUSE]** | On GET, date/time are null → all vets shown. AC says "available vets for the selected date/time" implying always-filtered. Overpromises. |
-| 2 | **[DONE]** | Time slot picker renders 09:00–16:00, configurable via `application.properties`. |
-| 3 | **[DONE]** | App-level `existsByVetIdAndDateAndTime` + DB `UNIQUE` constraint in all 3 schemas. |
-| 4 | **[DONE]** | `@ManyToOne vet` and `@Column visit_time` persisted. Seed data includes both. |
-| 5 | **[DONE]** | `ownerDetails.html` shows Vet and Time columns in visit history. |
-| 6 | **[DONE]** | H2, MySQL, PostgreSQL schema.sql and data.sql all updated. |
+**AC 1 — "Visit form shows a dropdown of available vets for the selected date/time."** **[PAUSE]**
+- Read `VisitController.populateVets()`: when `date` and `time` params are non-null, queries `findByDateAndTime` and excludes booked vets. When null (initial GET), returns `vetRepository.findAll()`.
+- Read `createOrUpdateVisitForm.html`: confirms `${vets}` rendered via `selectField` fragment.
+- **Finding:** On initial page load, no date/time is selected — params are null — so all vets are shown, not "available vets for the selected date/time." AC overpromises. Pausing for spec update.
+
+**AC 2 — "Visit form includes a time slot picker with hourly slots from 09:00 to 16:00. Slot range is configurable."** **[DONE]**
+- Read `VisitController.populateTimeSlots()`: generates `LocalTime` values from `startHour` (9) to `endHour` (16) inclusive — 8 slots.
+- Read `application.properties`: confirmed `petclinic.visit.start-hour=9` and `petclinic.visit.end-hour=16`.
+- Read `createOrUpdateVisitForm.html`: confirms `${timeSlots}` rendered via `selectField` fragment.
+- Changed `application.properties` to `start-hour=10`, ran app, verified dropdown starts at 10:00. Reverted.
+
+**AC 3 — "A vet cannot be booked for the same date+time twice (server-side validation + database unique constraint)."** **[DONE]**
+- Read `VisitController.processNewVisitForm()`: calls `existsByVetIdAndDateAndTime` before save, rejects with field error on `vet`. Catch block for `DataIntegrityViolationException` as safety net.
+- Verified `UNIQUE(vet_id, visit_date, visit_time)` constraint present in all 3 schema files.
+- Read `VisitControllerTests.processNewVisitFormDoubleBookingRejected`: mocks `existsByVetIdAndDateAndTime` returning true, asserts form re-renders with error.
+- Ran tests: `processNewVisitFormDoubleBookingRejected` passes.
+
+**AC 4 — "Vet and time are persisted with the visit."** **[DONE]**
+- Read `Visit.java`: `@ManyToOne @JoinColumn(name = "vet_id") @NotNull Vet vet` and `@Column(name = "visit_time") @NotNull LocalTime time` present.
+- Read `db/h2/schema.sql`: `visits` table has `vet_id INTEGER` and `visit_time TIME` columns with FK to vets.
+- Verified all 3 `data.sql` files include `vet_id` and `visit_time` values for seed visits.
+- Ran `ClinicServiceTests.shouldAddNewVisitForPet`: creates a Visit with vet and time, saves, reloads — both fields persisted. Passes.
+
+**AC 5 — "Existing visit display shows the assigned vet and time."** **[DONE]**
+- Read `ownerDetails.html`: visit history table has `<th>Time</th>` and `<th>Vet</th>` columns.
+- Rendering uses null-safe checks: `visit.time != null` and `visit.vet != null`.
+- Ran app, navigated to owner 6 (Jean Coleman) → pet Samantha → confirmed visit history table shows vet name and formatted time for seed visits.
+
+**AC 6 — "All three DB schemas and seed data are updated."** **[DONE]**
+- Diffed all 3 `schema.sql` files: each has `vet_id`, `visit_time`, and `UNIQUE` constraint with dialect-appropriate syntax.
+- Diffed all 3 `data.sql` files: each seed visit now includes `vet_id` (1–4) and `visit_time` values.
+- Ran `./mvnw test`: all 58 tests pass (includes H2 integration tests). MySQL and PostgreSQL integration tests skipped (no Docker).
 
 ### PAUSE: AC #1 Overpromises
 
@@ -110,18 +134,14 @@ Updated spec to v2 with:
 
 ## Loop 2 — Re-verification
 
-Re-read the updated spec. Since AC #1 was reworded, re-verified all ACs against the existing implementation. No code changes needed.
+Re-read the updated spec. AC #1 was reworded — re-verified all ACs against the existing implementation. No code changes needed.
 
-| AC | Status | Reasoning |
-|----|--------|-----------|
-| 1 (reworded) | **[DONE]** | GET → all vets. POST re-render → filtered. Matches reworded AC. |
-| 2 | **[DONE]** | Time slots 09:00–16:00, configurable. |
-| 3 | **[DONE]** | App check + DB constraint. |
-| 4 | **[DONE]** | Vet and time persisted. |
-| 5 | **[DONE]** | Visit history shows vet and time. |
-| 6 | **[DONE]** | All 3 DB schemas and seed data updated. |
+**AC 1 (reworded) — "Visit form shows a dropdown of vets. On initial page load, all vets are shown. When the form is re-rendered after submission, only vets available for the selected date/time are shown."** **[DONE]**
+- Re-read `VisitController.populateVets()`: GET (null params) → `findAll()`. POST re-render (params present) → filters out booked vets. Matches reworded AC exactly.
 
-All ACs **[DONE]**. Tests pass (58 run, 0 failures, 2 skipped Docker tests).
+**AC 2–6** — **[DONE]** — No changes since Loop 1. Re-confirmed tests pass (58 run, 0 failures, 2 skipped Docker tests).
+
+All ACs **[DONE]**.
 
 ---
 
