@@ -15,6 +15,35 @@ INSERT INTO vet_specialties VALUES (3, 3) ON CONFLICT (vet_id, specialty_id) DO 
 INSERT INTO vet_specialties VALUES (4, 2) ON CONFLICT (vet_id, specialty_id) DO NOTHING;
 INSERT INTO vet_specialties VALUES (5, 1) ON CONFLICT (vet_id, specialty_id) DO NOTHING;
 
+-- James Carter (vet 1): Mon-Fri 09:00-17:00
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 1, 1, '09:00', '17:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=1 AND day_of_week=1);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 1, 2, '09:00', '17:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=1 AND day_of_week=2);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 1, 3, '09:00', '17:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=1 AND day_of_week=3);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 1, 4, '09:00', '17:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=1 AND day_of_week=4);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 1, 5, '09:00', '17:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=1 AND day_of_week=5);
+-- Helen Leary (vet 2): Mon, Wed, Fri 08:00-16:00
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 2, 1, '08:00', '16:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=2 AND day_of_week=1);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 2, 3, '08:00', '16:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=2 AND day_of_week=3);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 2, 5, '08:00', '16:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=2 AND day_of_week=5);
+-- Linda Douglas (vet 3): Tue-Sat 09:00-18:00
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 3, 2, '09:00', '18:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=3 AND day_of_week=2);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 3, 3, '09:00', '18:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=3 AND day_of_week=3);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 3, 4, '09:00', '18:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=3 AND day_of_week=4);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 3, 5, '09:00', '18:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=3 AND day_of_week=5);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 3, 6, '09:00', '18:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=3 AND day_of_week=6);
+-- Rafael Ortega (vet 4): Mon-Thu 10:00-17:00
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 4, 1, '10:00', '17:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=4 AND day_of_week=1);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 4, 2, '10:00', '17:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=4 AND day_of_week=2);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 4, 3, '10:00', '17:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=4 AND day_of_week=3);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 4, 4, '10:00', '17:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=4 AND day_of_week=4);
+-- Henry Stevens (vet 5): Mon-Fri 09:00-15:00
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 5, 1, '09:00', '15:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=5 AND day_of_week=1);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 5, 2, '09:00', '15:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=5 AND day_of_week=2);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 5, 3, '09:00', '15:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=5 AND day_of_week=3);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 5, 4, '09:00', '15:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=5 AND day_of_week=4);
+INSERT INTO vet_schedules (vet_id, day_of_week, start_time, end_time) SELECT 5, 5, '09:00', '15:00' WHERE NOT EXISTS (SELECT * FROM vet_schedules WHERE vet_id=5 AND day_of_week=5);
+-- Sharon Jenkins (vet 6): no schedule
+
 INSERT INTO types (name) SELECT 'cat' WHERE NOT EXISTS (SELECT * FROM types WHERE name='cat');
 INSERT INTO types (name) SELECT 'dog' WHERE NOT EXISTS (SELECT * FROM types WHERE name='dog');
 INSERT INTO types (name) SELECT 'lizard' WHERE NOT EXISTS (SELECT * FROM types WHERE name='lizard');

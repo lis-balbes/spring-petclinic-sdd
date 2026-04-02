@@ -46,6 +46,16 @@ CREATE TABLE IF NOT EXISTS pets (
   FOREIGN KEY (type_id) REFERENCES types(id)
 ) engine=InnoDB;
 
+CREATE TABLE IF NOT EXISTS vet_schedules (
+  id INT(4) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  vet_id INT(4) UNSIGNED NOT NULL,
+  day_of_week INT NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  FOREIGN KEY (vet_id) REFERENCES vets(id),
+  UNIQUE (vet_id, day_of_week)
+) engine=InnoDB;
+
 CREATE TABLE IF NOT EXISTS visits (
   id INT(4) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   pet_id INT(4) UNSIGNED,

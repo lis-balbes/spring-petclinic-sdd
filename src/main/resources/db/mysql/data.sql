@@ -15,6 +15,35 @@ INSERT IGNORE INTO vet_specialties VALUES (3, 3);
 INSERT IGNORE INTO vet_specialties VALUES (4, 2);
 INSERT IGNORE INTO vet_specialties VALUES (5, 1);
 
+-- James Carter (vet 1): Mon-Fri 09:00-17:00
+INSERT IGNORE INTO vet_schedules VALUES (1, 1, 1, '09:00', '17:00');
+INSERT IGNORE INTO vet_schedules VALUES (2, 1, 2, '09:00', '17:00');
+INSERT IGNORE INTO vet_schedules VALUES (3, 1, 3, '09:00', '17:00');
+INSERT IGNORE INTO vet_schedules VALUES (4, 1, 4, '09:00', '17:00');
+INSERT IGNORE INTO vet_schedules VALUES (5, 1, 5, '09:00', '17:00');
+-- Helen Leary (vet 2): Mon, Wed, Fri 08:00-16:00
+INSERT IGNORE INTO vet_schedules VALUES (6, 2, 1, '08:00', '16:00');
+INSERT IGNORE INTO vet_schedules VALUES (7, 2, 3, '08:00', '16:00');
+INSERT IGNORE INTO vet_schedules VALUES (8, 2, 5, '08:00', '16:00');
+-- Linda Douglas (vet 3): Tue-Sat 09:00-18:00
+INSERT IGNORE INTO vet_schedules VALUES (9, 3, 2, '09:00', '18:00');
+INSERT IGNORE INTO vet_schedules VALUES (10, 3, 3, '09:00', '18:00');
+INSERT IGNORE INTO vet_schedules VALUES (11, 3, 4, '09:00', '18:00');
+INSERT IGNORE INTO vet_schedules VALUES (12, 3, 5, '09:00', '18:00');
+INSERT IGNORE INTO vet_schedules VALUES (13, 3, 6, '09:00', '18:00');
+-- Rafael Ortega (vet 4): Mon-Thu 10:00-17:00
+INSERT IGNORE INTO vet_schedules VALUES (14, 4, 1, '10:00', '17:00');
+INSERT IGNORE INTO vet_schedules VALUES (15, 4, 2, '10:00', '17:00');
+INSERT IGNORE INTO vet_schedules VALUES (16, 4, 3, '10:00', '17:00');
+INSERT IGNORE INTO vet_schedules VALUES (17, 4, 4, '10:00', '17:00');
+-- Henry Stevens (vet 5): Mon-Fri 09:00-15:00
+INSERT IGNORE INTO vet_schedules VALUES (18, 5, 1, '09:00', '15:00');
+INSERT IGNORE INTO vet_schedules VALUES (19, 5, 2, '09:00', '15:00');
+INSERT IGNORE INTO vet_schedules VALUES (20, 5, 3, '09:00', '15:00');
+INSERT IGNORE INTO vet_schedules VALUES (21, 5, 4, '09:00', '15:00');
+INSERT IGNORE INTO vet_schedules VALUES (22, 5, 5, '09:00', '15:00');
+-- Sharon Jenkins (vet 6): no schedule
+
 INSERT IGNORE INTO types VALUES (1, 'cat');
 INSERT IGNORE INTO types VALUES (2, 'dog');
 INSERT IGNORE INTO types VALUES (3, 'lizard');

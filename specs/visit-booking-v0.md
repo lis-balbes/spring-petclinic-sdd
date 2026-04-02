@@ -15,43 +15,38 @@ Add vet assignment and time slot selection to the visit creation flow. When book
 
 ## Plan
 
-### 1. Schema changes
-Add `vet_id` (FK → vets) and `visit_time` (TIME) columns to the `visits` table in:
-- `src/main/resources/db/h2/schema.sql`
-- `src/main/resources/db/mysql/schema.sql`
-- `src/main/resources/db/postgres/schema.sql`
+- [ ] **1. Schema changes**
+  - [ ] Add `vet_id` (FK → vets) and `visit_time` (TIME) columns to the `visits` table in:
+    - `src/main/resources/db/h2/schema.sql`
+    - `src/main/resources/db/mysql/schema.sql`
+    - `src/main/resources/db/postgres/schema.sql`
+  - [ ] Update seed data in the corresponding `data.sql` files to include vet and time for existing visits.
 
-Update seed data in the corresponding `data.sql` files to include vet and time for existing visits.
+- [ ] **2. Visit entity** — `src/main/java/org/springframework/samples/petclinic/owner/Visit.java`
+  - [ ] Add `@ManyToOne` field `vet` (references `Vet` entity) with `@JoinColumn(name = "vet_id")`.
+  - [ ] Add `LocalTime time` field with `@Column(name = "visit_time")` and `@DateTimeFormat(pattern = "HH:mm")`.
+  - [ ] Add `@NotNull` validation on both new fields.
 
-### 2. Visit entity
-**`src/main/java/org/springframework/samples/petclinic/owner/Visit.java`**
-- Add `@ManyToOne` field `vet` (references `Vet` entity) with `@JoinColumn(name = "vet_id")`.
-- Add `LocalTime time` field with `@Column(name = "visit_time")` and `@DateTimeFormat(pattern = "HH:mm")`.
-- Add `@NotNull` validation on both new fields.
+- [ ] **3. VisitRepository — add double-booking query**
+  - [ ] Create `src/main/java/org/springframework/samples/petclinic/owner/VisitRepository.java` (Spring Data interface extending `Repository<Visit, Integer>`).
+  - [ ] Add method: `boolean existsByVetIdAndDateAndTime(Integer vetId, LocalDate date, LocalTime time)` — used for double-booking check.
 
-### 3. VisitRepository — add double-booking query
-Create `src/main/java/org/springframework/samples/petclinic/owner/VisitRepository.java` (Spring Data interface extending `Repository<Visit, Integer>`).
-- Add method: `boolean existsByVetIdAndDateAndTime(Integer vetId, LocalDate date, LocalTime time)` — used for double-booking check.
+- [ ] **4. VisitController updates** — `src/main/java/org/springframework/samples/petclinic/owner/VisitController.java`
+  - [ ] Inject `VetRepository` and new `VisitRepository`.
+  - [ ] Add `@ModelAttribute("vets")` method that exposes `vetRepository.findAll()` to the form.
+  - [ ] In `processNewVisitForm`: before saving, call the double-booking check. If conflict, add a `BindingResult` error on the `vet` field and return the form.
+  - [ ] Add `setAllowedFields` update if needed (currently only blocks `id`).
 
-### 4. VisitController updates
-**`src/main/java/org/springframework/samples/petclinic/owner/VisitController.java`**
-- Inject `VetRepository` and new `VisitRepository`.
-- Add `@ModelAttribute("vets")` method that exposes `vetRepository.findAll()` to the form.
-- In `processNewVisitForm`: before saving, call the double-booking check. If conflict, add a `BindingResult` error on the `vet` field and return the form.
-- Add `setAllowedFields` update if needed (currently only blocks `id`).
+- [ ] **5. Form template update** — `src/main/resources/templates/pets/createOrUpdateVisitForm.html`
+  - [ ] Add a `<select>` dropdown for vet (bound to `visit.vet`, populated from `${vets}`), displaying vet name.
+  - [ ] Add a `<select>` or `<input type="time">` for time slot (bound to `visit.time`).
+  - [ ] Show validation errors for the new fields.
 
-### 5. Form template update
-**`src/main/resources/templates/pets/createOrUpdateVisitForm.html`**
-- Add a `<select>` dropdown for vet (bound to `visit.vet`, populated from `${vets}`), displaying vet name.
-- Add a `<select>` or `<input type="time">` for time slot (bound to `visit.time`).
-- Show validation errors for the new fields.
+- [ ] **6. Owner details / visit history display** — `src/main/resources/templates/owners/ownerDetails.html`
+  - [ ] Add Vet and Time columns to the visits table that shows per-pet visit history.
 
-### 6. Owner details / visit history display
-**`src/main/resources/templates/owners/ownerDetails.html`**
-- Add Vet and Time columns to the visits table that shows per-pet visit history.
-
-### 7. Tests
-- Update or add controller tests in `src/test/java/org/springframework/samples/petclinic/owner/VisitControllerTests.java` to cover:
+- [ ] **7. Tests**
+  - [ ] Update or add controller tests in `src/test/java/org/springframework/samples/petclinic/owner/VisitControllerTests.java`:
     - Vet list populated in model.
     - Successful booking with vet+time.
     - Double-booking rejected.

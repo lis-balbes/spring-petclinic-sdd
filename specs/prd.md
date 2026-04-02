@@ -8,7 +8,6 @@ We want to turn this into a proper scheduling system — owners book a specific 
 ### Booking
 When creating a visit, the owner selects a veterinarian and a time slot (date + hour).
 The system shows which vets are available for the chosen date. A vet is available if they have open slots in their schedule and no existing booking at that time.
-Each visit has a type: checkup, vaccination, surgery, or emergency. Default is checkup.
 Visits are 1 hour long. No variable duration for now.
 
 ### Vet availability
@@ -40,3 +39,4 @@ Recurring visits
 Multi-vet visits
 SMS notifications
 Waitlist
+Visit types

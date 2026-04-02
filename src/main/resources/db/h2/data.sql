@@ -15,6 +15,35 @@ INSERT INTO vet_specialties VALUES (3, 3);
 INSERT INTO vet_specialties VALUES (4, 2);
 INSERT INTO vet_specialties VALUES (5, 1);
 
+-- James Carter (vet 1): Mon-Fri 09:00-17:00
+INSERT INTO vet_schedules VALUES (default, 1, 1, '09:00', '17:00');
+INSERT INTO vet_schedules VALUES (default, 1, 2, '09:00', '17:00');
+INSERT INTO vet_schedules VALUES (default, 1, 3, '09:00', '17:00');
+INSERT INTO vet_schedules VALUES (default, 1, 4, '09:00', '17:00');
+INSERT INTO vet_schedules VALUES (default, 1, 5, '09:00', '17:00');
+-- Helen Leary (vet 2): Mon, Wed, Fri 08:00-16:00
+INSERT INTO vet_schedules VALUES (default, 2, 1, '08:00', '16:00');
+INSERT INTO vet_schedules VALUES (default, 2, 3, '08:00', '16:00');
+INSERT INTO vet_schedules VALUES (default, 2, 5, '08:00', '16:00');
+-- Linda Douglas (vet 3): Tue-Sat 09:00-18:00
+INSERT INTO vet_schedules VALUES (default, 3, 2, '09:00', '18:00');
+INSERT INTO vet_schedules VALUES (default, 3, 3, '09:00', '18:00');
+INSERT INTO vet_schedules VALUES (default, 3, 4, '09:00', '18:00');
+INSERT INTO vet_schedules VALUES (default, 3, 5, '09:00', '18:00');
+INSERT INTO vet_schedules VALUES (default, 3, 6, '09:00', '18:00');
+-- Rafael Ortega (vet 4): Mon-Thu 10:00-17:00
+INSERT INTO vet_schedules VALUES (default, 4, 1, '10:00', '17:00');
+INSERT INTO vet_schedules VALUES (default, 4, 2, '10:00', '17:00');
+INSERT INTO vet_schedules VALUES (default, 4, 3, '10:00', '17:00');
+INSERT INTO vet_schedules VALUES (default, 4, 4, '10:00', '17:00');
+-- Henry Stevens (vet 5): Mon-Fri 09:00-15:00
+INSERT INTO vet_schedules VALUES (default, 5, 1, '09:00', '15:00');
+INSERT INTO vet_schedules VALUES (default, 5, 2, '09:00', '15:00');
+INSERT INTO vet_schedules VALUES (default, 5, 3, '09:00', '15:00');
+INSERT INTO vet_schedules VALUES (default, 5, 4, '09:00', '15:00');
+INSERT INTO vet_schedules VALUES (default, 5, 5, '09:00', '15:00');
+-- Sharon Jenkins (vet 6): no schedule
+
 INSERT INTO types VALUES (default, 'cat');
 INSERT INTO types VALUES (default, 'dog');
 INSERT INTO types VALUES (default, 'lizard');

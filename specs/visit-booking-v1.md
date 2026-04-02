@@ -15,63 +15,55 @@ Add vet assignment and time slot selection to the visit creation flow. When book
 
 ## Plan
 
-### 1. Schema changes
-Add `vet_id` (FK → vets) and `visit_time` (TIME) columns to the `visits` table in:
-- `src/main/resources/db/h2/schema.sql`
-- `src/main/resources/db/mysql/schema.sql`
-- `src/main/resources/db/postgres/schema.sql`
+- [ ] **1. Schema changes**
+  - [ ] Add `vet_id` (FK → vets) and `visit_time` (TIME) columns to the `visits` table in:
+    - `src/main/resources/db/h2/schema.sql`
+    - `src/main/resources/db/mysql/schema.sql`
+    - `src/main/resources/db/postgres/schema.sql`
+  - [ ] Add a `UNIQUE(vet_id, visit_date, visit_time)` constraint to the `visits` table in all three schema files to enforce double-booking prevention at the database level.
+  - [ ] Update seed data in the corresponding `data.sql` files to include vet and time for existing visits.
 
-Add a `UNIQUE(vet_id, visit_date, visit_time)` constraint to the `visits` table in all three schema files to enforce double-booking prevention at the database level.
+- [ ] **2. Visit entity** — `src/main/java/org/springframework/samples/petclinic/owner/Visit.java`
+  - [ ] Add `@ManyToOne` field `vet` (references `Vet` entity) with `@JoinColumn(name = "vet_id")`.
+  - [ ] Add `LocalTime time` field with `@Column(name = "visit_time")` and `@DateTimeFormat(pattern = "HH:mm")`.
+  - [ ] Add `@NotNull` validation on both new fields.
 
-Update seed data in the corresponding `data.sql` files to include vet and time for existing visits.
+- [ ] **3. VetFormatter**
+  - [ ] Create `src/main/java/org/springframework/samples/petclinic/vet/VetFormatter.java` — a `@Component` implementing `Formatter<Vet>`, following the `PetTypeFormatter` pattern.
+    - `print`: return vet's full name (`firstName + " " + lastName`).
+    - `parse`: look up the vet by name from `VetRepository.findAll()`.
+  - Required for Spring MVC to convert form select values into `Vet` entity instances on POST.
 
-### 2. Visit entity
-**`src/main/java/org/springframework/samples/petclinic/owner/Visit.java`**
-- Add `@ManyToOne` field `vet` (references `Vet` entity) with `@JoinColumn(name = "vet_id")`.
-- Add `LocalTime time` field with `@Column(name = "visit_time")` and `@DateTimeFormat(pattern = "HH:mm")`.
-- Add `@NotNull` validation on both new fields.
+- [ ] **4. VisitRepository**
+  - [ ] Create `src/main/java/org/springframework/samples/petclinic/owner/VisitRepository.java` (Spring Data interface extending `Repository<Visit, Integer>`).
+  - [ ] Add method: `boolean existsByVetIdAndDateAndTime(Integer vetId, LocalDate date, LocalTime time)` — used for double-booking check.
+  - [ ] Add method: `List<Visit> findByDateAndTime(LocalDate date, LocalTime time)` — used to find booked vets for a given slot, so the dropdown can filter them out.
 
-### 3. VetFormatter
-Create **`src/main/java/org/springframework/samples/petclinic/vet/VetFormatter.java`** — a `@Component` implementing `Formatter<Vet>`, following the `PetTypeFormatter` pattern.
-- `print`: return vet's full name (`firstName + " " + lastName`).
-- `parse`: look up the vet by name from `VetRepository.findAll()`.
+- [ ] **5. VisitController updates** — `src/main/java/org/springframework/samples/petclinic/owner/VisitController.java`
+  - [ ] Inject `VetRepository` and new `VisitRepository`.
+  - [ ] Add `@ModelAttribute("vets")` method that populates available vets. On GET (no date/time selected yet), return all vets via `vetRepository.findAll()`. On POST (date and time submitted with the form), use `VisitRepository.findByDateAndTime` to identify already-booked vets and exclude them from the list.
+  - [ ] Add `@ModelAttribute("timeSlots")` method that exposes the list of bookable time slots. Read slot boundaries from configuration (`petclinic.visit.start-hour` and `petclinic.visit.end-hour` in `application.properties`, defaulting to 9 and 16). Generate hourly `LocalTime` values from start to end inclusive.
+  - [ ] In `processNewVisitForm`: before saving, call the double-booking check. If conflict, add a `BindingResult` error on the `vet` field and return the form.
+  - [ ] Wrap the save call in a try/catch for `DataIntegrityViolationException`. If two concurrent requests pass the app-level check but one hits the DB unique constraint, catch the exception and re-render the form with the same user-friendly error on the `vet` field. This is the graceful handling required by the dual-layer defense described in the Decisions section.
 
-This is required for Spring MVC to convert form select values into `Vet` entity instances on POST.
+- [ ] **6. Configuration**
+  - [ ] Add to `src/main/resources/application.properties`:
+    ```properties
+    petclinic.visit.start-hour=9
+    petclinic.visit.end-hour=16
+    ```
+  - [ ] Use `@Value` injection in `VisitController` to read these values.
 
-### 4. VisitRepository
-Create `src/main/java/org/springframework/samples/petclinic/owner/VisitRepository.java` (Spring Data interface extending `Repository<Visit, Integer>`).
-- Add method: `boolean existsByVetIdAndDateAndTime(Integer vetId, LocalDate date, LocalTime time)` — used for double-booking check.
-- Add method: `List<Visit> findByDateAndTime(LocalDate date, LocalTime time)` — used to find booked vets for a given slot, so the dropdown can filter them out.
+- [ ] **7. Form template update** — `src/main/resources/templates/pets/createOrUpdateVisitForm.html`
+  - [ ] Add a `<select>` dropdown for vet (bound to `visit.vet`, populated from `${vets}`), displaying vet name.
+  - [ ] Add a `<select>` dropdown for time slot (bound to `visit.time`, populated from `${timeSlots}`), displaying formatted hour values.
+  - [ ] Show validation errors for the new fields.
 
-### 5. VisitController updates
-**`src/main/java/org/springframework/samples/petclinic/owner/VisitController.java`**
-- Inject `VetRepository` and new `VisitRepository`.
-- Add `@ModelAttribute("vets")` method that populates available vets. On GET (no date/time selected yet), return all vets via `vetRepository.findAll()`. On POST (date and time submitted with the form), use `VisitRepository.findByDateAndTime` to identify already-booked vets and exclude them from the list.
-- Add `@ModelAttribute("timeSlots")` method that exposes the list of bookable time slots. Read slot boundaries from configuration (`petclinic.visit.start-hour` and `petclinic.visit.end-hour` in `application.properties`, defaulting to 9 and 16). Generate hourly `LocalTime` values from start to end inclusive.
-- In `processNewVisitForm`: before saving, call the double-booking check. If conflict, add a `BindingResult` error on the `vet` field and return the form.
-- Wrap the save call in a try/catch for `DataIntegrityViolationException`. If two concurrent requests pass the app-level check but one hits the DB unique constraint, catch the exception and re-render the form with the same user-friendly error on the `vet` field. This is the graceful handling required by the dual-layer defense described in the Decisions section.
+- [ ] **8. Owner details / visit history display** — `src/main/resources/templates/owners/ownerDetails.html`
+  - [ ] Add Vet and Time columns to the visits table that shows per-pet visit history.
 
-### 6. Configuration
-Add to `src/main/resources/application.properties`:
-```properties
-petclinic.visit.start-hour=9
-petclinic.visit.end-hour=16
-```
-
-Use `@Value` injection in `VisitController` to read these values.
-
-### 7. Form template update
-**`src/main/resources/templates/pets/createOrUpdateVisitForm.html`**
-- Add a `<select>` dropdown for vet (bound to `visit.vet`, populated from `${vets}`), displaying vet name.
-- Add a `<select>` dropdown for time slot (bound to `visit.time`, populated from `${timeSlots}`), displaying formatted hour values.
-- Show validation errors for the new fields.
-
-### 8. Owner details / visit history display
-**`src/main/resources/templates/owners/ownerDetails.html`**
-- Add Vet and Time columns to the visits table that shows per-pet visit history.
-
-### 9. Tests
-- Update or add controller tests in `src/test/java/org/springframework/samples/petclinic/owner/VisitControllerTests.java` to cover:
+- [ ] **9. Tests**
+  - [ ] Update or add controller tests in `src/test/java/org/springframework/samples/petclinic/owner/VisitControllerTests.java`:
     - Vet list populated in model.
     - Successful booking with vet+time.
     - Double-booking rejected.
